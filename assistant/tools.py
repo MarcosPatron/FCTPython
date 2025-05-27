@@ -21,13 +21,16 @@ def buscar_farmacia() -> str:
         response.raise_for_status()
         data = response.json()
 
-        resultados = [
-            feature["properties"].get("descripcion", "")
-            for feature in data.get("features", [])
-        ]
+        resultados = []
+        for feature in data.get("features", []):
+            props = feature.get("properties", {})
+            nombre = props.get("nombretitu", "Desconocido")
+            direccion = f"{props.get('tipovia', '')} {props.get('nombrevia', '')} {props.get('numpol', '')}".strip()
+            telefono = props.get("telefono", "Sin teléfono")
+            resultados.append(f"- {nombre} ({direccion}) - Tel: {telefono}")
 
         if resultados:
-            return "Farmacias encontradas:\n- " + "\n- ".join(resultados)
+            return "Farmacias encontradas en Cáceres:\n" + "\n".join(resultados)
         else:
             return "No se encontraron farmacias disponibles."
 
@@ -57,13 +60,16 @@ def buscar_dea() -> str:
         response.raise_for_status()
         data = response.json()
 
-        resultados = [
-            feature["properties"].get("descripcion", "")
-            for feature in data.get("features", [])
-        ]
+        resultados = []
+        for feature in data.get("features", []):
+            props = feature.get("properties", {})
+            situacion = props.get("situacion", "Ubicación desconocida")
+            direccion = props.get("direccion", "Dirección desconocida")
+            descripcion = props.get("descripcion", "")
+            resultados.append(f"- {situacion} ({direccion})\n  {descripcion}")
 
         if resultados:
-            return "Desfibriladores encontrados:\n- " + "\n- ".join(resultados)
+            return "Desfibriladores encontrados en Cáceres:\n" + "\n".join(resultados)
         else:
             return "No se encontraron desfibriladores disponibles."
 
