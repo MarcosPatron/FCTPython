@@ -1,4 +1,6 @@
 flask
+gunicorn
+python-dotenv
 openai-agents
 mysql-connector-python
 requests
