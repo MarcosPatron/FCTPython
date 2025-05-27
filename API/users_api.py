@@ -1,93 +1,87 @@
 from flask import Blueprint, request, jsonify
-from data_base import db_connection  # asegúrate de tener esta función implementada
+from db.user_repository import UserRepository
+from utils.jwt_handler import generate_jwt
 
-users_bp = Blueprint('users', __name__)
+class UserAPI:
+    def __init__(self):
+        self.blueprint = Blueprint('users', __name__, url_prefix='/api/backend')
+        self.register_routes()
 
-# POST /api/backend/logIn
-@users_bp.route('log_in', methods=['POST'])
-def log_in():
-    data = request.get_json()
-    username = data.get('username')
-    email = data.get('email')
+    def register_routes(self):
+        bp = self.blueprint
 
-    if not username or not email:
-        return jsonify({'error': 'Faltan credenciales'}), 400
+        @bp.route('/log_in', methods=['POST'])
+        def log_in():
+            data = request.get_json()
+            username = data.get('username')
+            email = data.get('email')
 
-    try:
-        cnx = db_connection()
-        cursor = cnx.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM USERS WHERE USERNAME = %s AND EMAIL = %s", (username, email))
-        user = cursor.fetchone()
+            if not username or not email:
+                return jsonify({'error': 'Faltan credenciales'}), 400
 
-        if user:
-            return jsonify(user)
-        else:
-            return jsonify({'error': 'Usuario no encontrado'}), 404
+            try:
+                user = UserRepository.find_by_username_and_email(username, email)
+                if user:
+                    token = generate_jwt(username)
+                    return jsonify({
+                        "fullname": user.get("FULLNAME"),
+                        "username": user.get("USERNAME"),
+                        "email": user.get("EMAIL"),
+                        "JWToken": token,
+                        "profilePicture": user.get("PROFILE_PICTURE") or ""
+                    })
+                return jsonify({'error': 'Usuario no encontrado'}), 404
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        @bp.route('/sign_in', methods=['POST'])
+        def sign_in():
+            data = request.get_json()
+            fullname = data.get('fullname')
+            username = data.get('username')
+            email = data.get('email')
 
+            if not all([fullname, username, email]):
+                return jsonify({'error': 'Campos obligatorios faltantes'}), 400
 
-# POST /api/backend/signIn
-@users_bp.route('sign_in', methods=['POST'])
-def sign_in():
-    data = request.get_json()
-    fullname = data.get('fullname')
-    username = data.get('username')
-    email = data.get('email')
+            try:
+                UserRepository.create_user(fullname, username, email)
+                token = generate_jwt(username)
+                return jsonify({
+                    "fullname": fullname,
+                    "username": username,
+                    "email": email,
+                    "JWToken": token,
+                    "profilePicture": ""
+                }), 201
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
-    if not all([fullname, username, email]):
-        return jsonify({'error': 'Campos obligatorios faltantes'}), 400
+        @bp.route('/edit_user', methods=['PUT'])
+        def edit_user():
+            data = request.get_json()
+            fullname = data.get('fullname')
+            username = data.get('username')
+            email = data.get('email')
 
-    try:
-        cnx = db_connection()
-        cursor = cnx.cursor()
-        cursor.execute("""
-            INSERT INTO USERS (TIPO_USERS_ID, USERNAME, FULLNAME, EMAIL)
-            VALUES (%s, %s, %s, %s)
-        """, (1, username, fullname, email))  # TIPO_USERS_ID por defecto 1
-        cnx.commit()
-        return jsonify({'message': 'Usuario registrado'}), 201
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+            if not username:
+                return jsonify({'error': 'Username obligatorio'}), 400
 
+            try:
+                UserRepository.update_user(fullname, username, email)
+                return jsonify({'message': 'Usuario actualizado'})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
-# PUT /api/backend/editUser
-@users_bp.route('edit_user', methods=['PUT'])
-def edit_user():
-    data = request.get_json()
-    username = data.get('username')
-    email = data.get('email')
-    fullname = data.get('fullname')
+        @bp.route('/delete_user', methods=['DELETE'])
+        def delete_user():
+            user_id = request.args.get('id')
 
-    if not username:
-        return jsonify({'error': 'Username obligatorio'}), 400
+            if not user_id:
+                return jsonify({'error': 'Falta el ID'}), 400
 
-    try:
-        cnx = db_connection()
-        cursor = cnx.cursor()
-        cursor.execute("""
-            UPDATE USERS SET FULLNAME = %s, EMAIL = %s WHERE USERNAME = %s
-        """, (fullname, email, username))
-        cnx.commit()
-        return jsonify({'message': 'Usuario actualizado'})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-# DELETE /api/backend/deleteUser?id=123
-@users_bp.route('delete_user', methods=['DELETE'])
-def delete_user():
-    user_id = request.args.get('id')
-
-    if not user_id:
-        return jsonify({'error': 'Falta el ID'}), 400
-
-    try:
-        cnx = db_connection()
-        cursor = cnx.cursor()
-        cursor.execute("DELETE FROM USERS WHERE USERSID = %s", (user_id,))
-        cnx.commit()
-        return jsonify({'message': 'Usuario eliminado'})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+            try:
+                UserRepository.delete_user(user_id)
+                return jsonify({'message': 'Usuario eliminado'})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
