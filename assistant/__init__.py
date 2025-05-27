@@ -1,5 +1,1 @@
-from .tools import (
-    obtener_desfibriladores,
-    obtener_farmacias
-)
-
+from .tools import HerramientasLocales
