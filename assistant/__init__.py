@@ -1,5 +1,5 @@
 from .tools import (
-    get_pharmacy_tools,
-    get_defibrillator_tools
+    obtener_desfibriladores,
+    obtener_farmacias
 )
 
