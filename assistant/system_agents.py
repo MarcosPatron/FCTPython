@@ -6,13 +6,13 @@ from assistant.tools import get_pharmacy_tools, get_defibrillator_tools
 pharmacy_agent = Agent(
     name="Pharmacy Info Agent",
     instructions="Proporcionas información sobre farmacias disponibles, ubicación, horarios, etc.",
-    tools=get_pharmacy_tools()
+    tools=obtener_farmacias()
 )
 
 defibrillator_agent = Agent(
     name="Defibrillator Info Agent",
     instructions="Proporcionas información sobre ubicación de desfibriladores (DEA) y cómo acceder a ellos.",
-    tools=get_defibrillator_tools()
+    tools=obtener_desfibriladores()
 )
 
 triage_agent_instance = Agent(
