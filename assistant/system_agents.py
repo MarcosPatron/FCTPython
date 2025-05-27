@@ -1,7 +1,7 @@
 # system_agents.py
 
 from agents import Agent, handoff
-from assistant.tools import get_pharmacy_tools, get_defibrillator_tools
+from assistant.tools import obtener_farmacias, obtener_desfibriladores
 
 pharmacy_agent = Agent(
     name="Pharmacy Info Agent",
