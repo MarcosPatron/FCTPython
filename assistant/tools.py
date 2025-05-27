@@ -1,80 +1,32 @@
 import requests
 from agents import function_tool
 
-# -------------------- FARMACIAS --------------------
+@function_tool
+def obtener_farmacias():
+    url = 'https://ide.caceres.es/geoserver/toponimia/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=toponimia%3Afarmacias&maxFeatures=50&outputFormat=application%2Fjson'
+    respuesta = requests.get(url)
+    respuesta.encoding = 'latin-1'
+    if respuesta.status_code == 200:
+        datos = respuesta.json()
+        resultado = []
+        for f in datos.get("features", []):
+            props = f.get("properties", {})
+            direccion = f"{props.get('tipovia', '')} {props.get('nombrevia', '')} {props.get('numpol', '')}"
+            resultado.append(f"- {props.get('nombretitu', 'Desconocido')} ({direccion.strip()})")
+        return "Aquí tienes algunas farmacias en Cáceres:\n" + "\n".join(resultado)
+    return "No se pudo obtener la información de farmacias."
 
 @function_tool
-def buscar_farmacia() -> str:
-    """Devuelve una lista de farmacias disponibles en Cáceres."""
-    url = "https://ide.caceres.es/geoserver/toponimia/ows"
-    params = {
-        "service": "WFS",
-        "version": "1.0.0",
-        "request": "GetFeature",
-        "typeName": "toponimia:farmacias",
-        "maxFeatures": 50,
-        "outputFormat": "application/json"
-    }
-
-    try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        data = response.json()
-
-        resultados = []
-        for feature in data.get("features", []):
-            props = feature.get("properties", {})
-            nombre = props.get("nombretitu", "Desconocido")
-            direccion = f"{props.get('tipovia', '')} {props.get('nombrevia', '')} {props.get('numpol', '')}".strip()
-            telefono = props.get("telefono", "Sin teléfono")
-            resultados.append(f"- {nombre} ({direccion}) - Tel: {telefono}")
-
-        if resultados:
-            return "Farmacias encontradas en Cáceres:\n" + "\n".join(resultados)
-        else:
-            return "No se encontraron farmacias disponibles."
-
-    except Exception as e:
-        return f"Error al obtener datos de farmacias: {str(e)}"
-
-def get_pharmacy_tools():
-    return [buscar_farmacia]
-
-# ----------------- DESFIBRILADORES -----------------
-
-@function_tool
-def buscar_dea() -> str:
-    """Devuelve una lista de desfibriladores públicos (DEA) disponibles en Cáceres."""
-    url = "https://ide.caceres.es/geoserver/toponimia/ows"
-    params = {
-        "service": "WFS",
-        "version": "1.0.0",
-        "request": "GetFeature",
-        "typeName": "toponimia:desfibriladores",
-        "maxFeatures": 100,
-        "outputFormat": "application/json"
-    }
-
-    try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        data = response.json()
-
-        resultados = []
-        for feature in data.get("features", []):
-            props = feature.get("properties", {})
-            situacion = props.get("situacion", "Ubicación desconocida")
+def obtener_desfibriladores():
+    url = 'https://ide.caceres.es/geoserver/toponimia/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=toponimia%3Adesfibriladores&maxFeatures=50&outputFormat=application%2Fjson'
+    respuesta = requests.get(url)
+    if respuesta.status_code == 200:
+        datos = respuesta.json()
+        resultado = []
+        for d in datos.get("features", []):
+            props = d.get("properties", {})
             direccion = props.get("direccion", "Dirección desconocida")
-            descripcion = props.get("descripcion", "")
-            resultados.append(f"- {situacion} ({direccion})\n  {descripcion}")
-
-        if resultados:
-            return "Desfibriladores encontrados en Cáceres:\n" + "\n".join(resultados)
-        else:
-            return "No se encontraron desfibriladores disponibles."
-
-    except Exception as e:
-        return f"Error al obtener datos de desfibriladores: {str(e)}"
-
-def get_defibrillator_tools():
-    return [buscar_dea]
+            situacion = props.get("situacion", "")
+            resultado.append(f"- {situacion} ({direccion})")
+        return "Aquí tienes algunos desfibriladores en Cáceres:\n" + "\n".join(resultado)
+    return "No se pudo obtener la información de desfibriladores."
