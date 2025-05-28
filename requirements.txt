@@ -5,3 +5,4 @@ openai-agents
 mysql-connector-python
 requests
 pytest
+PyJWT
