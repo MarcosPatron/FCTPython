@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from data_base.tickets_repository import TicketRepository
+from data_base.tickets_repository import TicketsRepository
 
 class TicketAPI:
     def __init__(self):
@@ -20,7 +20,7 @@ class TicketAPI:
                 return jsonify({'error': 'Faltan campos'}), 400
 
             try:
-                success = TicketRepository.save_ticket(user_id, subject, message)
+                success = TicketsRepository.save_ticket(user_id, subject, message)
                 return jsonify(success)
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
