@@ -20,7 +20,7 @@ class TicketAPI:
                 return jsonify({'error': 'Faltan campos'}), 400
 
             try:
-                success = TicketsRepository.save_ticket(user_id, subject, message)
+                success = TicketsRepository.create_ticket(user_id, asunto, descripcion, categoria, prioridad)
                 return jsonify(success)
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
