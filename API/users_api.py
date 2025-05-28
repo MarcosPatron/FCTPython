@@ -15,13 +15,13 @@ class UserAPI:
         def log_in():
             data = request.get_json()
             username = data.get('username')
-            email = data.get('email')
+            password = data.get('password')  # Asegúrate de validar contraseña si es necesario
 
-            if not username or not email:
+            if not username or not password:
                 return jsonify({'error': 'Faltan credenciales'}), 400
 
             try:
-                user = UsersRepository.find_by_username_and_email(username, email)
+                user = UsersRepository.find_by_username(username)
                 if user:
                     tipo = TipoUsersRepository.get_all_tipos()
                     tipo_usuario = next(
@@ -59,13 +59,13 @@ class UserAPI:
                     "email": email,
                     "JWToken": token,
                     "profilePicture": "",
-                    "tipoUsuario": "Usuario"  # por defecto ya que se inserta con TIPO_USERS_ID = 1
+                    "tipoUsuario": "Usuario"
                 }), 201
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
-        @bp.route('/edit_user', methods=['PUT'])
-        def edit_user():
+        @bp.route('/users/<int:user_id>', methods=['PUT'])
+        def edit_user(user_id):
             data = request.get_json()
             fullname = data.get('fullname')
             username = data.get('username')
@@ -76,20 +76,15 @@ class UserAPI:
 
             try:
                 UsersRepository.update_user(fullname, username, email)
-                return jsonify({'message': 'Usuario actualizado'})
+                return jsonify({'message': f'Usuario {user_id} actualizado'})
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
-        @bp.route('/delete_user', methods=['DELETE'])
-        def delete_user():
-            user_id = request.args.get('id')
-
-            if not user_id:
-                return jsonify({'error': 'Falta el ID'}), 400
-
+        @bp.route('/delete_user/<int:user_id>', methods=['DELETE'])
+        def delete_user(user_id):
             try:
                 UsersRepository.delete_user(user_id)
-                return jsonify({'message': 'Usuario eliminado'})
+                return jsonify({'message': f'Usuario {user_id} eliminado'})
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
