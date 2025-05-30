@@ -5,20 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ffdb8dff-1bda-459d-9bb6-915094a21998" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/data_base/attachments_repository.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data_base/logs_repository.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data_base/messages_repository.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data_base/threads_repository.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data_base/tickets_repository.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data_base/tipo_users_repository.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data_base/users_repository.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/jwt_handler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/FCTProyect.iml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/users_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/users_api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Procfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/tickets_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/tickets_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assistant/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/assistant/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data_base/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_base/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_base/tickets_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_base/tickets_repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_base/users_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_base/users_repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/jwt_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/jwt_handler.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

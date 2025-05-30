@@ -7,7 +7,7 @@ load_dotenv()
 
 JWT_SECRET = os.getenv("JWT_SECRET", "clave_secreta_por_defecto")
 JWT_ALGORITHM = "HS256"
-JWT_EXP_DELTA_SECONDS = 3600  # 1 hora
+JWT_EXP_DELTA_SECONDS = 3600
 
 def generate_jwt(username: str) -> str:
     payload = {

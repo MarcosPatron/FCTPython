@@ -3,11 +3,11 @@ from data_base import get_connection
 class UsersRepository:
 
     @staticmethod
-    def find_by_username_and_email(username, email):
+    def find_by_username(username):
         conn = get_connection()
         cursor = conn.cursor(dictionary=True)
-        query = "SELECT * FROM USERS WHERE USERNAME = %s AND EMAIL = %s"
-        cursor.execute(query, (username, email))
+        query = "SELECT * FROM USERS WHERE USERNAME = %s"
+        cursor.execute(query, (username,))
         user = cursor.fetchone()
         cursor.close()
         conn.close()

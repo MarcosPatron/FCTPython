@@ -3,17 +3,18 @@ from data_base import get_connection
 class TicketsRepository:
 
     @staticmethod
-    def create_ticket(user_id, asunto, descripcion, categoria, prioridad):
+    def create_ticket(user_id, descripcion, categoria, prioridad):
         conn = get_connection()
         cursor = conn.cursor()
         query = """
-            INSERT INTO TICKETS_SOPORTE (USER_ID, ASUNTO, DESCRIPCION, CATEGORIA, PRIORIDAD)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO TICKETS_SOPORTE (USER_ID, DESCRIPCION, CATEGORIA, PRIORIDAD)
+            VALUES (%s, %s, %s, %s)
         """
-        cursor.execute(query, (user_id, asunto, descripcion, categoria, prioridad))
+        cursor.execute(query, (user_id, descripcion, categoria, prioridad))
         conn.commit()
         cursor.close()
         conn.close()
+        return True
 
     @staticmethod
     def get_tickets_by_user(user_id):

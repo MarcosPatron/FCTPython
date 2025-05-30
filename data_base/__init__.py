@@ -1,3 +1,5 @@
+# data_base/__init__.py
+
 import mysql.connector
 import os
 from dotenv import load_dotenv
@@ -8,10 +10,11 @@ load_dotenv()
 # Función central para obtener una conexión a MySQL
 def get_connection():
     return mysql.connector.connect(
-        host=os.getenv("DB_HOST", "localhost"),
-        user=os.getenv("DB_USER", "root"),
-        password=os.getenv("DB_PASSWORD", ""),
-        database=os.getenv("DB_NAME", "fct_database")
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT", 3306),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME")
     )
 
 from data_base.users_repository import UsersRepository
