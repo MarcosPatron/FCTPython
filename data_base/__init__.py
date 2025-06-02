@@ -18,7 +18,6 @@ def get_connection():
     )
 
 from data_base.users_repository import UsersRepository
-from data_base.tipo_users_repository import TipoUsersRepository
 from data_base.logs_repository import LogsRepository
 from data_base.threads_repository import ThreadsRepository
 from data_base.messages_repository import MessagesRepository
