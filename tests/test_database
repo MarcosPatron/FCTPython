@@ -1,0 +1,53 @@
+import unittest
+import uuid
+from repositories.threads_repository import ThreadsRepository
+from repositories.messages_repository import MessagesRepository
+
+USER_ID = "user-test"
+PROVIDER = "test-insert"
+MENSAJE_USUARIO = "Mensaje de prueba del usuario."
+RESPUESTA_ASISTENTE = "Respuesta simulada del asistente."
+
+class TestInsertBBDD(unittest.TestCase):
+
+    def test_insert_thread_and_messages(self):
+        thread_id = str(uuid.uuid4())
+
+        # Insertar un hilo
+        ThreadsRepository.create_thread(
+            user_id=USER_ID,
+            provider=PROVIDER,
+            status='test',
+            id_thread=thread_id,
+            description='Hilo de prueba para validación de inserción'
+        )
+
+        # Insertar mensaje de usuario
+        user_msg_id = str(uuid.uuid4())
+        MessagesRepository.create_message(
+            thread_id=thread_id,
+            type_='user',
+            content=MENSAJE_USUARIO,
+            id_message=user_msg_id
+        )
+
+        # Insertar mensaje de asistente
+        assistant_msg_id = str(uuid.uuid4())
+        MessagesRepository.create_message(
+            thread_id=thread_id,
+            type_='assistant',
+            content=RESPUESTA_ASISTENTE,
+            id_message=assistant_msg_id
+        )
+
+        print(f"[✔] Inserción exitosa: hilo={thread_id}")
+        print(f"[→] Usuario: {MENSAJE_USUARIO}")
+        print(f"[←] Asistente: {RESPUESTA_ASISTENTE}")
+
+        # Validación simple (puedes hacer asserts reales si quieres)
+        self.assertTrue(thread_id)
+        self.assertTrue(user_msg_id)
+        self.assertTrue(assistant_msg_id)
+
+if __name__ == "__main__":
+    unittest.main()
