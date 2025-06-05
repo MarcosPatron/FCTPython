@@ -15,15 +15,43 @@ defibrillator_agent = Agent(
     tools=[HerramientasLocales.obtener_desfibriladores]
 )
 
+tobacco_shop_agent = Agent(
+    name="Tobacco Shop Info Agent",
+    instructions="Proporcionas información sobre estancos disponibles, ubicación, teléfono y página web si están disponibles.",
+    tools=[HerramientasLocales.obtener_estancos]
+)
+
+restaurant_agent = Agent(
+    name="Restaurant Info Agent",
+    instructions="Proporcionas información sobre restaurantes en Cáceres, incluyendo dirección, teléfono y página web.",
+    tools=[HerramientasLocales.obtener_restaurantes]
+)
+
+cafe_bar_agent = Agent(
+    name="Cafe and Bar Info Agent",
+    instructions="Proporcionas información sobre cafés y bares en Cáceres, incluyendo dirección, teléfono y página web.",
+    tools=[HerramientasLocales.obtener_bares_cafes]
+)
+
+bus_stop_agent = Agent(
+    name="Bus Stop Info Agent",
+    instructions="Proporcionas información sobre paradas de autobuses urbanos, incluyendo nombres de parada y las líneas que pasan por ellas.",
+    tools=[HerramientasLocales.obtener_paradas_bus]
+)
+
 triage_agent_instance = Agent(
     name="Triage Agent",
     instructions=(
         "Eres un agente de clasificación. Según la consulta del usuario, debes decidir si se trata de una "
-        "pregunta sobre farmacias o sobre desfibriladores. Si es así, debes delegar al agente correspondiente. "
-        "Responde tú mismo solo si no está claro a cuál delegar."
+        "pregunta sobre farmacias, desfibriladores, estancos, restaurantes, bares/cafés o paradas de autobús. "
+        "Debes delegar al agente correspondiente. Responde tú mismo solo si no está claro a cuál delegar."
     ),
     handoffs=[
         handoff(pharmacy_agent),
-        handoff(defibrillator_agent)
+        handoff(defibrillator_agent),
+        handoff(tobacco_shop_agent),
+        handoff(restaurant_agent),
+        handoff(cafe_bar_agent),
+        handoff(bus_stop_agent)
     ]
 )
