@@ -3,14 +3,14 @@ from data_base import get_connection
 class MessagesRepository:
 
     @staticmethod
-    def create_message(thread_id, type_, content, id_message):
+    def create_message(thread_id, type_, content):
         conn = get_connection()
         cursor = conn.cursor()
         query = """
-            INSERT INTO MESSAGES (THREAD_ID, TYPE, CONTENT, ID_MESSAGE)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO MESSAGES (THREAD_ID, TYPE, CONTENT)
+            VALUES (%s, %s, %s)
         """
-        cursor.execute(query, (thread_id, type_, content, id_message))
+        cursor.execute(query, (thread_id, type_, content))
         conn.commit()
         cursor.close()
         conn.close()

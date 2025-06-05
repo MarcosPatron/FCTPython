@@ -2,10 +2,12 @@ from flask import Blueprint, request, jsonify
 import uuid
 import traceback
 import asyncio
+
 from assistant.system_agents import triage_agent_instance
-from repositories.threads_repository import ThreadsRepository
-from repositories.messages_repository import MessagesRepository
+from data_base.threads_repository import ThreadsRepository
+from data_base.messages_repository import MessagesRepository
 from agents import Runner
+from data_base import get_connection
 
 assistants_bp = Blueprint('assistants', __name__)
 thread_map = {}
@@ -13,60 +15,67 @@ thread_map = {}
 @assistants_bp.route('/send_message', methods=['POST'])
 def send_message():
     data = request.get_json()
-    mensaje = data.get('Message')
-    uuid_thread = data.get('ThreadId')
-    user_id = data.get('UserId')  # Se asume que lo envías en la petición
 
-    if not mensaje:
-        return jsonify({'error': 'Falta el mensaje'}), 400
-    if not user_id:
-        return jsonify({'error': 'Falta el user_id'}), 400
+    mensaje = data.get('Message')
+    uuid_thread = data.get('ThreadId')  # ID_THREAD (UUID externo)
+    username = data.get('Username')
+    coordinates = data.get('coordinates', [])
+
+    if not mensaje or not username:
+        return jsonify({'error': 'Faltan datos obligatorios'}), 400
 
     try:
+        # Buscar el ID numérico del usuario
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT USERSID FROM USERS WHERE USERNAME = %s", (username,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': f'Usuario \"{username}\" no encontrado'}), 404
+
+        user_id = row[0]
         nuevo_hilo = False
+
+        # Si no se recibe UUID externo, generarlo
         if not uuid_thread:
             uuid_thread = str(uuid.uuid4())
             nuevo_hilo = True
 
+        # Crear nuevo hilo o recuperar THREADSID
         if nuevo_hilo:
-            ThreadsRepository.create_thread(
+            threadsid = ThreadsRepository.create_thread(
                 user_id=user_id,
                 provider='triage',
                 status='active',
                 id_thread=uuid_thread,
                 description='Conversación inicial'
             )
+        else:
+            threadsid = ThreadsRepository.get_threadsid_by_uuid(uuid_thread)
+            if not threadsid:
+                return jsonify({'error': f'Hilo \"{uuid_thread}\" no encontrado'}), 404
 
         # Guardar mensaje del usuario
         MessagesRepository.create_message(
-            thread_id=uuid_thread,
+            thread_id=threadsid,
             type_='user',
-            content=mensaje,
-            id_message=str(uuid.uuid4())
+            content=mensaje
         )
 
-        # Recuperar historial del hilo para dar contexto al asistente
-        historial_raw = MessagesRepository.get_messages_by_thread(uuid_thread)
+        # Ejecutar agente (sin history)
+        result = asyncio.run(Runner.run(triage_agent_instance, mensaje))
 
-        history = [
-            {"role": "user" if m["TYPE"] == "user" else "assistant", "content": m["CONTENT"]}
-            for m in historial_raw
-        ]
-
-        # Ejecutar agente con contexto
-        result = asyncio.run(Runner.run(triage_agent_instance, mensaje, history=history))
-
-        openai_thread_id = thread_map.get(uuid_thread)
-        thread_map[uuid_thread] = getattr(result, "thread_id", openai_thread_id)
-
+        # Respuesta del agente
         output = getattr(result, "final_output", "[Sin contenido]")
 
-        # Guardar respuesta del asistente
+        # Guardar respuesta del agente
         MessagesRepository.create_message(
-            thread_id=uuid_thread,
+            thread_id=threadsid,
             type_='assistant',
-            content=output,
-            id_message=str(uuid.uuid4())
+            content=output
         )
 
         return jsonify({
@@ -76,4 +85,5 @@ def send_message():
         })
 
     except Exception as e:
+        print("Error en /send_message:", traceback.format_exc())
         return jsonify({'error': str(e), 'trace': traceback.format_exc()}), 500
