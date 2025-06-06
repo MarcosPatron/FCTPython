@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from data_base.tickets_repository import TicketsRepository
-from data_base.users_repository import UsersRepository  # necesario
+from data_base.users_repository import UsersRepository
 
 class TicketAPI:
     def __init__(self):
@@ -23,7 +23,6 @@ class TicketAPI:
                 return jsonify({'error': 'Faltan campos'}), 400
 
             username = usuario.get('username')
-
             if not username:
                 return jsonify({'error': 'Falta username'}), 400
 
@@ -33,11 +32,12 @@ class TicketAPI:
                     return jsonify({'error': 'Usuario no encontrado'}), 404
 
                 user_id = user['USERSID']
+
                 success = TicketsRepository.create_ticket(
                     user_id=user_id,
+                    descripcion=descripcion,
                     categoria=categoria,
-                    prioridad=prioridad,
-                    descripcion=descripcion
+                    prioridad=prioridad
                 )
                 return jsonify({'success': success})
             except Exception as e:

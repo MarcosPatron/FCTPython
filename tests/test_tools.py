@@ -1,5 +1,5 @@
 from agents import Agent, Runner
-from assistant import get_pharmacy_tools, get_defibrillator_tools
+from assistant.tools import get_pharmacy_tools, get_defibrillator_tools
 
 def test_buscar_farmacia():
     agent = Agent(

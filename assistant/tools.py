@@ -1,9 +1,12 @@
+# assistant/tools.py
+
 import requests
 from agents import function_tool
 
 class HerramientasLocales:
     @staticmethod
     def _obtener_farmacias_raw():
+        # Endpoint de la API donde toma los datos
         url = 'https://ide.caceres.es/geoserver/toponimia/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=toponimia%3Afarmacias&maxFeatures=50&outputFormat=application%2Fjson'
         respuesta = requests.get(url)
         respuesta.encoding = 'latin-1'
@@ -14,8 +17,8 @@ class HerramientasLocales:
                 props = f.get("properties", {})
                 direccion = f"{props.get('tipovia', '')} {props.get('nombrevia', '')} {props.get('numpol', '')}".strip()
                 resultado.append(f"- {props.get('nombretitu', 'Desconocido')} ({direccion})")
-            return "Aquí tienes algunas farmacias en Cáceres:\n" + "\n".join(resultado)
-        return "No se pudo obtener la información de farmacias."
+            return "Aquí tienes algunas farmacias en Cáceres:\n" + "\n".join(resultado) # Datos enviados al asistente
+        return "No se pudo obtener la información de farmacias." # Si hay algún error se lo comunica al asistente
 
     @staticmethod
     def _obtener_desfibriladores_raw():
@@ -135,3 +138,10 @@ class HerramientasLocales:
     @function_tool
     def obtener_paradas_bus():
         return HerramientasLocales._obtener_paradas_bus_raw()
+
+# Para las clases de prueba
+def get_pharmacy_tools():
+    return [HerramientasLocales.obtener_farmacias]
+
+def get_defibrillator_tools():
+    return [HerramientasLocales.obtener_desfibriladores]

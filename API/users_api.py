@@ -1,3 +1,5 @@
+# api/user_api.py
+
 from flask import Blueprint, request, jsonify
 from data_base.users_repository import UsersRepository
 from utils.jwt_handler import generate_jwt
@@ -22,8 +24,8 @@ class UserAPI:
 
             try:
                 user = UsersRepository.find_by_username(username)
-                if user and check_password_hash(user['PASSWORD'], password):
-                    token = generate_jwt(username)
+                if user and check_password_hash(user['PASSWORD'], password): # Comprueba la contraseña
+                    token = generate_jwt(username) # Genera el JWT para que se mantenga la sesion iniciada
                     return jsonify({
                         "fullname": user.get("FULLNAME"),
                         "username": user.get("USERNAME"),
@@ -43,10 +45,15 @@ class UserAPI:
             email = data.get('email')
             password = data.get('password')
 
+            # Comprueba que el nombre de usuario no se repita
+            if UsersRepository.find_by_username(username):
+                return jsonify({'error': 'Ese nombre de usuario ya existe'}), 409
+
             if not all([fullname, username, email, password]):
                 return jsonify({'error': 'Campos obligatorios faltantes'}), 400
 
             try:
+                # Crea el usuario en la BBDD
                 UsersRepository.create_user(fullname, username, email, password)
                 token = generate_jwt(username)
                 return jsonify({
@@ -78,8 +85,8 @@ class UserAPI:
                 if not check_password_hash(user['PASSWORD'], password):
                     return jsonify({'error': 'Contraseña incorrecta'}), 401
 
-                # ⚠️ Usamos el username original para buscar y editar
-                UsersRepository.update_user(fullname, new_username, email, username)  # <- modificamos el método
+                # Uso el username para buscar y editar
+                UsersRepository.update_user(fullname, new_username, email, username)
 
                 user_actualizado = UsersRepository.find_by_username(new_username)
                 token = generate_jwt(new_username)

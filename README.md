@@ -23,7 +23,8 @@ DB_NAME=nombre_bbdd
 **Script Base de Datos**:
 
 ```sql
-CREATE DATABASE IF NOT EXISTS sistema_soporte CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+DROP DATABASE IF EXISTS sistema_soporte;
+CREATE DATABASE sistema_soporte CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE sistema_soporte;
 
 -- Tabla de logs
@@ -88,9 +89,8 @@ CREATE TABLE ATTACHMENTS (
 CREATE TABLE TICKETS_SOPORTE (
     TICKET_ID INT AUTO_INCREMENT PRIMARY KEY,
     USER_ID INT NOT NULL,
-    ASUNTO VARCHAR(150) NOT NULL,
     DESCRIPCION TEXT NOT NULL,
-    CATEGORIA ENUM('Cuenta', 'Asistente', 'Problemas tecnicos') DEFAULT 'Problemas tecnicos',
+    CATEGORIA ENUM('Cuenta', 'Asistente', 'Tecnicos') DEFAULT 'Tecnicos',
     PRIORIDAD ENUM('baja', 'media', 'alta') DEFAULT 'media',
     ESTADO ENUM('abierto', 'en_progreso', 'cerrado') DEFAULT 'abierto',
     RESPUESTA TEXT,

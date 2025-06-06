@@ -1,49 +1,44 @@
 import uuid
-import pytest
-from repositories.threads_repository import ThreadsRepository
-from repositories.messages_repository import MessagesRepository
+from data_base.threads_repository import ThreadsRepository
+from data_base.messages_repository import MessagesRepository
 
-USER_ID = "user-test"
+USER_ID = 1
 PROVIDER = "test-insert"
 MENSAJE_USUARIO = "Mensaje de prueba del usuario."
 RESPUESTA_ASISTENTE = "Respuesta simulada del asistente."
 
 def test_insert_thread_and_messages():
-    thread_id = str(uuid.uuid4())
+    id_thread = str(uuid.uuid4())
 
     # Insertar hilo
-    ThreadsRepository.create_thread(
+    threadsid = ThreadsRepository.create_thread(
         user_id=USER_ID,
         provider=PROVIDER,
         status='test',
-        id_thread=thread_id,
+        id_thread=id_thread,
         description='Hilo de prueba para validación de inserción'
     )
 
-    # Insertar mensaje de usuario
-    user_msg_id = str(uuid.uuid4())
+    assert threadsid is not None
+
     MessagesRepository.create_message(
-        thread_id=thread_id,
+        thread_id=threadsid,
         type_='user',
-        content=MENSAJE_USUARIO,
-        id_message=user_msg_id
+        content=MENSAJE_USUARIO
     )
 
-    # Insertar mensaje de asistente
-    assistant_msg_id = str(uuid.uuid4())
     MessagesRepository.create_message(
-        thread_id=thread_id,
+        thread_id=threadsid,
         type_='assistant',
-        content=RESPUESTA_ASISTENTE,
-        id_message=assistant_msg_id
+        content=RESPUESTA_ASISTENTE
     )
 
-    print(f"[✔] Inserción exitosa: hilo={thread_id}")
+    print(f"[✔] Inserción exitosa: hilo={id_thread} (THREADSID={threadsid})")
     print(f"[→] Usuario: {MENSAJE_USUARIO}")
     print(f"[←] Asistente: {RESPUESTA_ASISTENTE}")
 
-    # Validaciones con assert
-    mensajes = MessagesRepository.get_messages_by_thread(thread_id)
+    # Validaciones
+    mensajes = MessagesRepository.get_messages_by_thread(threadsid)
     assert len(mensajes) == 2
     assert mensajes[0]['TYPE'] == 'user'
     assert mensajes[0]['CONTENT'] == MENSAJE_USUARIO

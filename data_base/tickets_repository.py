@@ -1,3 +1,5 @@
+# data_base/tickets_repository.py
+
 from data_base import get_connection
 
 class TicketsRepository:
@@ -33,6 +35,16 @@ class TicketsRepository:
         cursor = conn.cursor()
         query = "UPDATE TICKETS_SOPORTE SET ESTADO = %s WHERE TICKET_ID = %s"
         cursor.execute(query, (nuevo_estado, ticket_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    @staticmethod
+    def delete_tickets_by_user_id(user_id):
+        conn = get_connection()
+        cursor = conn.cursor()
+        query = "DELETE FROM TICKETS_SOPORTE WHERE USER_ID = %s"
+        cursor.execute(query, (user_id,))
         conn.commit()
         cursor.close()
         conn.close()

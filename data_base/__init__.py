@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 # Cargar variables del entorno desde .env
 load_dotenv()
 
-# Función central para obtener una conexión a MySQL
+# Función central para obtener una conexion a la base de datos
 def get_connection():
     return mysql.connector.connect(
         host=os.getenv("DB_HOST"),

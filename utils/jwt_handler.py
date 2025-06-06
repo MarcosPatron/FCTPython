@@ -1,3 +1,5 @@
+# utils/jwt_handler.py
+
 import jwt
 import datetime
 import os
@@ -7,12 +9,12 @@ load_dotenv()
 
 JWT_SECRET = os.getenv("JWT_SECRET", "clave_secreta_por_defecto")
 JWT_ALGORITHM = "HS256"
-JWT_EXP_DELTA_SECONDS = 3600
+JWT_EXP_DELTA_SECONDS = 3600 # Tiempo de expiracion del token
 
 def generate_jwt(username: str) -> str:
     payload = {
         "username": username,
-        "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=JWT_EXP_DELTA_SECONDS)
+        "exp": datetime.datetime.now() + datetime.timedelta(seconds=JWT_EXP_DELTA_SECONDS)
     }
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
     return token

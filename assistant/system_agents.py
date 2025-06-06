@@ -1,4 +1,4 @@
-# system_agents.py
+# assistant/system_agents.py
 
 from agents import Agent, handoff
 from assistant.tools import HerramientasLocales
@@ -36,17 +36,19 @@ cafe_bar_agent = Agent(
 bus_stop_agent = Agent(
     name="Bus Stop Info Agent",
     instructions="Proporcionas información sobre paradas de autobuses urbanos, incluyendo nombres de parada y las líneas que pasan por ellas.",
-    tools=[HerramientasLocales.obtener_paradas_bus]
+    tools=[HerramientasLocales.obtener_paradas_bus] # Herramientas que tiene disponible
 )
 
+# Generar un asistente
 triage_agent_instance = Agent(
-    name="Triage Agent",
-    instructions=(
+    name="Triage Agent", # Nombre del agente
+    instructions=( # Instrucciones
         "Eres un agente de clasificación. Según la consulta del usuario, debes decidir si se trata de una "
         "pregunta sobre farmacias, desfibriladores, estancos, restaurantes, bares/cafés o paradas de autobús. "
         "Debes delegar al agente correspondiente. Responde tú mismo solo si no está claro a cuál delegar."
+        "Proporciona a el resto de agentes las coordenadas para que tengan mas contexto de la situacion del usuario"
     ),
-    handoffs=[
+    handoffs=[ # Agentes a los que delega
         handoff(pharmacy_agent),
         handoff(defibrillator_agent),
         handoff(tobacco_shop_agent),

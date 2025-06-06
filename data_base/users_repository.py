@@ -1,5 +1,8 @@
+# data_base/users_repository.py
+
 from data_base import get_connection
 from werkzeug.security import generate_password_hash
+from data_base.tickets_repository import TicketsRepository  # Necesario para borrar tickets
 
 class UsersRepository:
 
@@ -46,9 +49,23 @@ class UsersRepository:
     def delete_user_by_username(username):
         conn = get_connection()
         cursor = conn.cursor()
-        query = "DELETE FROM USERS WHERE USERNAME = %s"
-        cursor.execute(query, (username,))
+
+        # Obtener el USERSID
+        cursor.execute("SELECT USERSID FROM USERS WHERE USERNAME = %s", (username,))
+        row = cursor.fetchone()
+        if not row:
+            cursor.close()
+            conn.close()
+            raise ValueError(f"Usuario '{username}' no encontrado")
+
+        user_id = row[0]
+
+        # Eliminar primero sus tickets
+        TicketsRepository.delete_tickets_by_user_id(user_id)
+
+        # Luego eliminar el usuario
+        cursor.execute("DELETE FROM USERS WHERE USERSID = %s", (user_id,))
         conn.commit()
         cursor.close()
         conn.close()
-
+        return True

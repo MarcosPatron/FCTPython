@@ -10,7 +10,7 @@ def register_blueprints(app):
     users_api = UserAPI()
     tickets_api = TicketAPI()
 
-    # Registrar todos los blueprints en la aplicación
+    # Registrar Blueprints en la aplicacion
     app.register_blueprint(users_api.blueprint)
     app.register_blueprint(tickets_api.blueprint)
     app.register_blueprint(assistants_bp)

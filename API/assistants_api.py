@@ -1,3 +1,5 @@
+# api/assistants.py
+
 from flask import Blueprint, request, jsonify
 import uuid
 import traceback
@@ -17,7 +19,7 @@ def send_message():
     data = request.get_json()
 
     mensaje = data.get('Message')
-    uuid_thread = data.get('ThreadId')  # ID_THREAD (UUID externo)
+    uuid_thread = data.get('ThreadId')
     username = data.get('Username')
     coordinates = data.get('coordinates', [])
 
@@ -25,7 +27,7 @@ def send_message():
         return jsonify({'error': 'Faltan datos obligatorios'}), 400
 
     try:
-        # Buscar el ID numérico del usuario
+        # Busca el ID del usuario
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT USERSID FROM USERS WHERE USERNAME = %s", (username,))
@@ -39,12 +41,12 @@ def send_message():
         user_id = row[0]
         nuevo_hilo = False
 
-        # Si no se recibe UUID externo, generarlo
+        # Si no hay UUID(nueva conversacion), lo genera
         if not uuid_thread:
             uuid_thread = str(uuid.uuid4())
             nuevo_hilo = True
 
-        # Crear nuevo hilo o recuperar THREADSID
+        # Crear nuevo hilo o recuperar conversacion
         if nuevo_hilo:
             threadsid = ThreadsRepository.create_thread(
                 user_id=user_id,
@@ -58,30 +60,32 @@ def send_message():
             if not threadsid:
                 return jsonify({'error': f'Hilo \"{uuid_thread}\" no encontrado'}), 404
 
-        # Guardar mensaje del usuario
+        # Añadir coordenadas
+        if coordinates:
+            mensaje_completo = f"{mensaje}\n(Coordenadas: {coordinates[0]}, {coordinates[1]})"
+        else:
+            mensaje_completo = mensaje
+
+        # Guardar mensaje en BBDD
         MessagesRepository.create_message(
             thread_id=threadsid,
             type_='user',
-            content=mensaje
+            content=mensaje_completo
         )
 
-        # Ejecutar agente (sin history)
         result = asyncio.run(Runner.run(triage_agent_instance, mensaje))
-
-        # Respuesta del agente
         output = getattr(result, "final_output", "[Sin contenido]")
 
-        # Guardar respuesta del agente
         MessagesRepository.create_message(
             thread_id=threadsid,
             type_='assistant',
             content=output
         )
-
+        # Respuesta API
         return jsonify({
             'threadId': uuid_thread,
             'message': output,
-            'description': "Respuesta generada por el agente Triage"
+            'description': "Chat del asistente"
         })
 
     except Exception as e:

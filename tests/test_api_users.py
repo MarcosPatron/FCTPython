@@ -1,10 +1,10 @@
 import pytest
 from flask import Flask
 from werkzeug.security import generate_password_hash
-from user_api import UserAPI  # Asegúrate de importar correctamente
+from API import UserAPI
 from data_base.users_repository import UsersRepository
 
-# ---------- ARREGLOS ----------
+#  ARREGLOS
 
 @pytest.fixture
 def client():
@@ -17,16 +17,15 @@ def client():
 @pytest.fixture
 def user_data():
     return {
-        "fullname": "Test User",
-        "username": "testuser",
-        "email": "testuser@example.com",
-        "password": "securepass123"
+        "fullname": "Usuario de Prueba",
+        "username": "usuario_test",
+        "email": "test@example.com",
+        "password": "contrasena123"
     }
 
-# ---------- TESTS ----------
+# TESTS
 
 def test_sign_in(client, user_data):
-    # Primero eliminamos al usuario si existe (para evitar errores por duplicado)
     UsersRepository.delete_user_by_username(user_data["username"])
 
     response = client.post("/api/backend/sign_in", json=user_data)
@@ -36,10 +35,13 @@ def test_sign_in(client, user_data):
     assert "JWToken" in data
 
 def test_log_in(client, user_data):
-    # Asegurarse que el usuario existe
+    UsersRepository.delete_user_by_username(user_data["username"])
+
+    # Crear usuario con hash de contraseña
     hashed = generate_password_hash(user_data["password"])
     UsersRepository.create_user(user_data["fullname"], user_data["username"], user_data["email"], hashed)
 
+    # Hacer login
     response = client.post("/api/backend/log_in", json={
         "username": user_data["username"],
         "password": user_data["password"]
