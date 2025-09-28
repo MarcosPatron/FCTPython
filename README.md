@@ -13,7 +13,7 @@ Instalar las dependencias del fichero requirements.txt y ejecutar run.py con pyt
 
 Creacion la base de datos especificada en este fichero en MySQL, y generar un fichero .env en la carpeta principal del proyecto con los datos para la conexión a la base de datos con el siguiente formato:
 ```
-OPENAI_API_KEY=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
+OPENAI_API_KEY=
 DB_HOST= localhost o la IP en cuestión
 DB_PORT=3306
 DB_USER=tu_usuario
