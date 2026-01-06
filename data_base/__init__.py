@@ -5,17 +5,12 @@ import mysql.connector
 from mysql.connector import Error
 from dotenv import load_dotenv
 
-# 🔹 Cargar variables solo si existe .env (para local)
-if os.path.exists(".env"):
+# Solo cargar .env en local
+if os.getenv("RAILWAY_ENVIRONMENT") is None and os.path.exists(".env"):
     load_dotenv()
 
 def get_connection():
-    """
-    Devuelve una conexión a la base de datos MySQL.
-    Detecta automáticamente si está en Railway o en local.
-    """
     try:
-        # Railway MySQL plugin usa estas variables
         host = os.getenv("MYSQLHOST") or os.getenv("DB_HOST")
         port = int(os.getenv("MYSQLPORT", os.getenv("DB_PORT", 3306)))
         user = os.getenv("MYSQLUSER") or os.getenv("DB_USER")
@@ -30,25 +25,13 @@ def get_connection():
             port=port,
             user=user,
             password=password,
-            database=database
+            database=database,
+            connection_timeout=5,     # 🔑 CRÍTICO
+            autocommit=True          # evita locks tontos
         )
 
         return conn
 
-    except Error as e:
-        # Loguea el error y lanza excepción para evitar 500 sin explicación
-        print(f"[ERROR] No se pudo conectar a la base de datos: {e}")
+    except Exception as e:
+        print(f"[DB ERROR] {e}")
         raise
-
-    except ValueError as ve:
-        print(f"[ERROR] {ve}")
-        raise
-
-# 🔹 Importar repositorios
-from data_base.users_repository import UsersRepository
-from data_base.logs_repository import LogsRepository
-from data_base.threads_repository import ThreadsRepository
-from data_base.messages_repository import MessagesRepository
-from data_base.attachments_repository import AttachmentsRepository
-from data_base.tickets_repository import TicketsRepository
-
