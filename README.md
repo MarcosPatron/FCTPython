@@ -99,6 +99,17 @@ CREATE TABLE TICKETS_SOPORTE (
     FOREIGN KEY (USER_ID) REFERENCES USERS(USERSID)
 );
 
+-- Tabla de recomendaciones
+CREATE TABLE recommendations_img (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    titulo_en VARCHAR(255),
+    imagen LONGBLOB,
+    descripcion TEXT,
+    descripcion_en TEXT,
+    url VARCHAR(500)
+);
+
 -- Crear usuario invitado (Debe estar creado, ya que se toma por defecto si no está la sesión iniciada)
 INSERT INTO USERS (USERNAME, FULLNAME, EMAIL, TELEFONO, PASSWORD)
 VALUES ('invitado', 'Usuario Invitado', 'invitado@example.com', '000000000', '00000');
