@@ -22,5 +22,5 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    port = int(os.getenv("PORT", 8000)) # Puerto de la API
+    port = int(os.getenv("PORT", 5000)) # Puerto de la API
     app.run(host="0.0.0.0", port=port, debug=True)
