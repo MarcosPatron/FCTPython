@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ffdb8dff-1bda-459d-9bb6-915094a21998" name="Changes" comment="Errores Railway">
       <change beforePath="$PROJECT_DIR$/API/assistants_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/assistants_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wsgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/wsgi.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
