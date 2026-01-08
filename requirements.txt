@@ -1,5 +1,6 @@
 flask~=3.1.1
 gunicorn~=21.2.0
+waitress~=3.0.2
 python-dotenv~=1.1.0
 openai-agents
 mysql-connector-python~=9.3.0
