@@ -3,6 +3,7 @@ import uuid
 import traceback
 import asyncio
 import time
+import logging
 
 from assistant.system_agents import triage_agent_instance
 from data_base.threads_repository import ThreadsRepository
@@ -10,18 +11,25 @@ from data_base.messages_repository import MessagesRepository
 from agents import Runner
 from data_base import get_connection
 
+# ---- CONFIGURACIÓN DE LOGGING ----
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+
 assistants_bp = Blueprint('assistants', __name__)
 
 @assistants_bp.route('/send_message', methods=['POST'])
 def send_message():
     start_time = time.time()
-    print("1️⃣ /send_message — request recibido")
+    logging.info("1️⃣ /send_message — request recibido")
 
     try:
         data = request.get_json(force=True, silent=True)
-        print("2️⃣ JSON recibido:", data)
+        logging.info("2️⃣ JSON recibido: %s", data)
 
         if not data:
+            logging.warning("JSON vacío o inválido")
             return jsonify({'error': 'JSON vacío o inválido'}), 400
 
         # Acepta mayúsculas y minúsculas (producción + Android)
@@ -31,9 +39,10 @@ def send_message():
         coordinates = data.get('coordinates', [])
 
         if not mensaje or not username:
+            logging.warning("Faltan datos obligatorios: mensaje=%s, username=%s", mensaje, username)
             return jsonify({'error': 'Faltan datos obligatorios'}), 400
 
-        print("3️⃣ Datos validados")
+        logging.info("3️⃣ Datos validados")
 
         # ---- DB: usuario ----
         conn = get_connection()
@@ -47,6 +56,7 @@ def send_message():
         conn.close()
 
         if not row:
+            logging.warning("Usuario '%s' no encontrado", username)
             return jsonify({'error': f'Usuario \"{username}\" no encontrado'}), 404
 
         user_id = row[0]
@@ -67,9 +77,10 @@ def send_message():
         else:
             threadsid = ThreadsRepository.get_threadsid_by_uuid(uuid_thread)
             if not threadsid:
+                logging.warning("Hilo '%s' no encontrado", uuid_thread)
                 return jsonify({'error': f'Hilo \"{uuid_thread}\" no encontrado'}), 404
 
-        print("4️⃣ Thread OK:", uuid_thread)
+        logging.info("4️⃣ Thread OK: %s", uuid_thread)
 
         MessagesRepository.create_message(
             thread_id=threadsid,
@@ -77,10 +88,10 @@ def send_message():
             content=mensaje
         )
 
-        print("5️⃣ Mensaje usuario guardado")
+        logging.info("5️⃣ Mensaje usuario guardado")
 
         # ---- EJECUCIÓN DEL AGENTE (PUNTO CRÍTICO) ----
-        print("6️⃣ Antes de ejecutar Runner.run()")
+        logging.info("6️⃣ Antes de ejecutar Runner.run()")
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
@@ -91,7 +102,7 @@ def send_message():
 
         loop.close()
 
-        print("7️⃣ Después de ejecutar Runner.run()")
+        logging.info("7️⃣ Después de ejecutar Runner.run()")
 
         output = getattr(result, "final_output", "[Sin contenido]")
 
@@ -102,7 +113,7 @@ def send_message():
         )
 
         elapsed = round(time.time() - start_time, 2)
-        print(f"8️⃣ Respuesta enviada ({elapsed}s)")
+        logging.info("8️⃣ Respuesta enviada (%ss)", elapsed)
 
         return jsonify({
             'threadId': uuid_thread,
@@ -112,8 +123,8 @@ def send_message():
         })
 
     except Exception as e:
-        print("❌ ERROR EN /send_message")
-        print(traceback.format_exc())
+        logging.error("❌ ERROR EN /send_message")
+        logging.error(traceback.format_exc())
         return jsonify({
             'error': str(e),
             'trace': traceback.format_exc()
