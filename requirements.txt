@@ -1,5 +1,5 @@
 flask~=3.1.1
-gunicorn
+gunicorn~=21.2.0
 python-dotenv~=1.1.0
 openai-agents
 mysql-connector-python~=9.3.0
