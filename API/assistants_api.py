@@ -65,8 +65,12 @@ def send_message():
             content=mensaje
         )
 
-        # Ejecutar agente (sin history)
-        result = asyncio.run(Runner.run(triage_agent_instance, mensaje))
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        result = loop.run_until_complete(
+            Runner.run(triage_agent_instance, mensaje)
+        )
+        loop.close()
 
         # Respuesta del agente
         output = getattr(result, "final_output", "[Sin contenido]")
