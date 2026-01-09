@@ -57,22 +57,30 @@ class HerramientasLocales:
     @staticmethod
     def _obtener_restaurantes_raw():
         url = 'https://ide.caceres.es/geoserver/gastrorutas/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gastrorutas%3Arestaurantes_cc_gastroguia&maxFeatures=50&outputFormat=application%2Fjson'
-        respuesta = requests.get(url)
-        if respuesta.status_code == 200:
+        try:
+            respuesta = requests.get(url, timeout=100)  # 100 segundos de espera
+            respuesta.raise_for_status()  # Lanza error si status != 200
             datos = respuesta.json()
-            resultado = []
-            for r in datos.get("features", []):
-                props = r.get("properties", {})
-                nombre = props.get("nombre", "Restaurante")
-                direccion = props.get("direccion", "Dirección desconocida")
-                telefono = props.get("telefono", "Sin teléfono")
-                web = props.get("web", "")
-                extra = f" | Tel: {telefono}"
-                if web:
-                    extra += f" | Web: {web}"
-                resultado.append(f"- {nombre} ({direccion}){extra}")
+        except requests.exceptions.Timeout:
+            return "La solicitud tardó demasiado en responder. Intenta de nuevo más tarde."
+        except requests.exceptions.RequestException as e:
+            return f"No se pudo obtener la información de restaurantes: {e}"
+
+        resultado = []
+        for r in datos.get("features", []):
+            props = r.get("properties", {})
+            nombre = props.get("nombre", "Restaurante")
+            direccion = props.get("direccion", "Dirección desconocida")
+            telefono = props.get("telefono", "Sin teléfono")
+            web = props.get("web", "")
+            extra = f" | Tel: {telefono}"
+            if web:
+                extra += f" | Web: {web}"
+            resultado.append(f"- {nombre} ({direccion}){extra}")
+
+        if resultado:
             return "Aquí tienes algunos restaurantes en Cáceres:\n" + "\n".join(resultado)
-        return "No se pudo obtener la información de restaurantes."
+        return "No se encontraron restaurantes."
 
     @staticmethod
     def _obtener_bares_cafes_raw():
