@@ -31,8 +31,8 @@ def get_connection():
             user=user,
             password=password,
             database=database,
-            connection_timeout=5,   # ⏱ evita bloqueos
-            autocommit=True         # 🧠 reduce locks y RAM
+            connection_timeout=5,
+            autocommit=True
         )
 
     except Error as e:
@@ -51,3 +51,9 @@ from data_base.threads_repository import ThreadsRepository
 from data_base.messages_repository import MessagesRepository
 from data_base.attachments_repository import AttachmentsRepository
 from data_base.tickets_repository import TicketsRepository
+from data_base.farmacias_repository import FarmaciasRepository
+from data_base.estancos_repository import EstancosRepository
+from data_base.paradas_bus_repository import ParadasBusRepository
+from data_base.bares_cafes_repository import BaresCafesRepository
+from data_base.restaurantes_repository import RestaurantesRepository
+from data_base.desfibriladores_repository import DesfibriladoresRepository

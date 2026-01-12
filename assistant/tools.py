@@ -1,160 +1,111 @@
-import requests
 from agents import function_tool
 
+from data_base.farmacias_repository import FarmaciasRepository
+from data_base.estancos_repository import EstancosRepository
+from data_base.paradas_bus_repository import ParadasBusRepository
+from data_base.bares_cafes_repository import BaresCafesRepository
+from data_base.restaurantes_repository import RestaurantesRepository
+from data_base.desfibriladores_repository import DesfibriladoresRepository
+
+
 class HerramientasLocales:
+
+    # ========= FARMACIAS =========
     @staticmethod
     def _obtener_farmacias_raw():
-        url = 'https://ide.caceres.es/geoserver/toponimia/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=toponimia%3Afarmacias&maxFeatures=50&outputFormat=application%2Fjson'
-        try:
-            respuesta = requests.get(url, timeout=100)
-            respuesta.raise_for_status()
-            respuesta.encoding = 'latin-1'
-            datos = respuesta.json()
-        except requests.exceptions.Timeout:
-            return "La solicitud tardó demasiado en responder. Intenta de nuevo más tarde."
-        except requests.exceptions.RequestException as e:
-            return f"No se pudo obtener la información de farmacias: {e}"
+        datos = FarmaciasRepository.get_all()
+
+        if not datos:
+            return "No se encontraron farmacias."
 
         resultado = []
-        for f in datos.get("features", []):
-            props = f.get("properties", {})
-            direccion = f"{props.get('tipovia', '')} {props.get('nombrevia', '')} {props.get('numpol', '')}".strip()
-            resultado.append(f"- {props.get('nombretitu', 'Desconocido')} ({direccion})")
+        for f in datos:
+            extra = f" | Tel: {f['telefono']}" if f["telefono"] else ""
+            horario = f"\n  Horario: {f['horario']}" if f["horario"] else ""
+            resultado.append(f"- {f['nombre']} ({f['direccion']}){extra}{horario}")
 
-        if resultado:
-            return "Aquí tienes algunas farmacias en Cáceres:\n" + "\n".join(resultado)
-        return "No se encontraron farmacias."
+        return "Aquí tienes algunas farmacias en Cáceres:\n" + "\n".join(resultado)
 
+    # ========= DESFIBRILADORES =========
     @staticmethod
     def _obtener_desfibriladores_raw():
-        url = 'https://ide.caceres.es/geoserver/toponimia/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=toponimia%3Adesfibriladores&maxFeatures=50&outputFormat=application%2Fjson'
-        try:
-            respuesta = requests.get(url, timeout=100)
-            respuesta.raise_for_status()
-            datos = respuesta.json()
-        except requests.exceptions.Timeout:
-            return "La solicitud tardó demasiado en responder. Intenta de nuevo más tarde."
-        except requests.exceptions.RequestException as e:
-            return f"No se pudo obtener la información de desfibriladores: {e}"
+        datos = DesfibriladoresRepository.get_all()
 
-        resultado = []
-        for d in datos.get("features", []):
-            props = d.get("properties", {})
-            direccion = props.get("direccion", "Dirección desconocida")
-            situacion = props.get("situacion", "")
-            resultado.append(f"- {situacion} ({direccion})")
+        if not datos:
+            return "No se encontraron desfibriladores."
 
-        if resultado:
-            return "Aquí tienes algunos desfibriladores en Cáceres:\n" + "\n".join(resultado)
-        return "No se encontraron desfibriladores."
+        resultado = [
+            f"- {d['situacion']} ({d['direccion']})"
+            for d in datos
+        ]
 
+        return "Aquí tienes algunos desfibriladores en Cáceres:\n" + "\n".join(resultado)
+
+    # ========= ESTANCOS =========
     @staticmethod
     def _obtener_estancos_raw():
-        url = 'https://ide.caceres.es/geoserver/toponimia/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=toponimia%3Aestancos&maxFeatures=50&outputFormat=application%2Fjson'
-        try:
-            respuesta = requests.get(url, timeout=100)
-            respuesta.raise_for_status()
-            datos = respuesta.json()
-        except requests.exceptions.Timeout:
-            return "La solicitud tardó demasiado en responder. Intenta de nuevo más tarde."
-        except requests.exceptions.RequestException as e:
-            return f"No se pudo obtener la información de estancos: {e}"
+        datos = EstancosRepository.get_all()
+
+        if not datos:
+            return "No se encontraron estancos."
 
         resultado = []
-        for e in datos.get("features", []):
-            props = e.get("properties", {})
-            direccion = f"{props.get('tipovia', '')} {props.get('nombrevia', '')} {props.get('numpol', '')}".strip()
-            telefono = props.get("telefono", "Sin teléfono")
-            web = props.get("web", "")
-            extra = f" | Tel: {telefono}"
-            if web:
-                extra += f" | Web: {web}"
-            resultado.append(f"- {props.get('nombre', 'Estanco')} ({direccion}){extra}")
+        for e in datos:
+            extra = f" | Web: {e['web']}" if e["web"] else ""
+            resultado.append(f"- {e['nombre']} ({e['direccion']}){extra}")
 
-        if resultado:
-            return "Aquí tienes algunos estancos en Cáceres:\n" + "\n".join(resultado)
-        return "No se encontraron estancos."
+        return "Aquí tienes algunos estancos en Cáceres:\n" + "\n".join(resultado)
 
+    # ========= RESTAURANTES =========
     @staticmethod
     def _obtener_restaurantes_raw():
-        url = 'https://ide.caceres.es/geoserver/gastrorutas/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gastrorutas%3Arestaurantes_cc_gastroguia&maxFeatures=50&outputFormat=application%2Fjson'
-        try:
-            respuesta = requests.get(url, timeout=100)
-            respuesta.raise_for_status()
-            datos = respuesta.json()
-        except requests.exceptions.Timeout:
-            return "La solicitud tardó demasiado en responder. Intenta de nuevo más tarde."
-        except requests.exceptions.RequestException as e:
-            return f"No se pudo obtener la información de restaurantes: {e}"
+        datos = RestaurantesRepository.get_all()
+
+        if not datos:
+            return "No se encontraron restaurantes."
 
         resultado = []
-        for r in datos.get("features", []):
-            props = r.get("properties", {})
-            nombre = props.get("nombre", "Restaurante")
-            direccion = props.get("direccion", "Dirección desconocida")
-            telefono = props.get("telefono", "Sin teléfono")
-            web = props.get("web", "")
-            extra = f" | Tel: {telefono}"
-            if web:
-                extra += f" | Web: {web}"
-            resultado.append(f"- {nombre} ({direccion}){extra}")
+        for r in datos:
+            extra = f" | Tel: {r['telefono']}" if r["telefono"] else ""
+            if r["web"]:
+                extra += f" | Web: {r['web']}"
+            resultado.append(f"- {r['nombre']} ({r['direccion']}){extra}")
 
-        if resultado:
-            return "Aquí tienes algunos restaurantes en Cáceres:\n" + "\n".join(resultado)
-        return "No se encontraron restaurantes."
+        return "Aquí tienes algunos restaurantes en Cáceres:\n" + "\n".join(resultado)
 
+    # ========= BARES / CAFÉS =========
     @staticmethod
     def _obtener_bares_cafes_raw():
-        url = 'https://ide.caceres.es/geoserver/gastrorutas/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=gastrorutas%3Acafes_y_bares_gastroguia&maxFeatures=50&outputFormat=application%2Fjson'
-        try:
-            respuesta = requests.get(url, timeout=100)
-            respuesta.raise_for_status()
-            datos = respuesta.json()
-        except requests.exceptions.Timeout:
-            return "La solicitud tardó demasiado en responder. Intenta de nuevo más tarde."
-        except requests.exceptions.RequestException as e:
-            return f"No se pudo obtener la información de cafés y bares: {e}"
+        datos = BaresCafesRepository.get_all()
+
+        if not datos:
+            return "No se encontraron cafés y bares."
 
         resultado = []
-        for b in datos.get("features", []):
-            props = b.get("properties", {})
-            nombre = props.get("nombre", "Café/Bar")
-            direccion = props.get("direccion", "Dirección desconocida")
-            telefono = props.get("telefono", "Sin teléfono")
-            web = props.get("web", "")
-            extra = f" | Tel: {telefono}"
-            if web:
-                extra += f" | Web: {web}"
-            resultado.append(f"- {nombre} ({direccion}){extra}")
+        for b in datos:
+            extra = f" | Tel: {b['telefono']}" if b["telefono"] else ""
+            if b["web"]:
+                extra += f" | Web: {b['web']}"
+            resultado.append(f"- {b['nombre']} ({b['direccion']}){extra}")
 
-        if resultado:
-            return "Aquí tienes algunos cafés y bares en Cáceres:\n" + "\n".join(resultado)
-        return "No se encontraron cafés y bares."
+        return "Aquí tienes algunos cafés y bares en Cáceres:\n" + "\n".join(resultado)
 
+    # ========= PARADAS BUS =========
     @staticmethod
     def _obtener_paradas_bus_raw():
-        url = 'https://ide.caceres.es/geoserver/Autobuses_Urbanos/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Autobuses_Urbanos%3AParadas&maxFeatures=250&outputFormat=application%2Fjson'
-        try:
-            respuesta = requests.get(url, timeout=100)
-            respuesta.raise_for_status()
-            datos = respuesta.json()
-        except requests.exceptions.Timeout:
-            return "La solicitud tardó demasiado en responder. Intenta de nuevo más tarde."
-        except requests.exceptions.RequestException as e:
-            return f"No se pudo obtener la información de paradas de autobús: {e}"
+        datos = ParadasBusRepository.get_all()
 
-        resultado = []
-        for p in datos.get("features", []):
-            props = p.get("properties", {})
-            nombre = props.get("NOMBRE", "Parada")
-            lineas = props.get("LINEAS", "Línea desconocida")
-            resultado.append(f"- {nombre} | Líneas: {lineas}")
+        if not datos:
+            return "No se encontraron paradas de autobús."
 
-        if resultado:
-            return "Aquí tienes algunas paradas de autobús en Cáceres:\n" + "\n".join(resultado)
-        return "No se encontraron paradas de autobús."
+        resultado = [
+            f"- {p['direccion']} | Líneas: {p['lineas']} | Tiempo real: {p['tiempopaso']}"
+            for p in datos
+        ]
 
-    # Funciones expuestas con function_tool
+        return "Aquí tienes algunas paradas de autobús en Cáceres:\n" + "\n".join(resultado)
+
+    # ========= function_tool =========
     @staticmethod
     @function_tool
     def obtener_farmacias():
