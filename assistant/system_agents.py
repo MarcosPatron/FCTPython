@@ -45,7 +45,8 @@ triage_agent_instance = Agent(
     instructions=( # Instrucciones
         "Eres un agente de clasificación. Según la consulta del usuario, debes decidir si se trata de una "
         "pregunta sobre farmacias, desfibriladores, estancos, restaurantes, bares/cafés o paradas de autobús. "
-        "Proporciona al usuario la proveniente de los otros agentes, no le des informacion que no ha pedido o innecesaria."
+        "Proporciona al usuario la proveniente de los otros agentes, no le des información que no ha pedido o innecesaria, "
+        "sus propias coordenadas y textos demasiado extensos."
         "Debes delegar al agente correspondiente."
         "Proporciona a el resto de agentes las coordenadas para que tengan mas contexto de la situacion del usuario"
     ),
