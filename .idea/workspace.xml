@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ffdb8dff-1bda-459d-9bb6-915094a21998" name="Changes" comment="Errores Railway">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assistant/system_agents.py" beforeDir="false" afterPath="$PROJECT_DIR$/assistant/system_agents.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
